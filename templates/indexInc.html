@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Incomes</title>
+</head>
+<body>
+<table>
+    <thead><th>Id</th><th>Sum</th><th>Type</th><th>Place</th><th>Date</th></thead>
+    {{range . }}
+    <tr>
+        <td>{{.Id}}</td>
+        <td>{{.Sum}}</td>
+        <td>{{.Type}}</td>
+        <td>{{.Place}}</td>
+        <td>{{.Date}}</td>
+    </tr>
+    {{end}}
+</table>
+</body>
+</html>
