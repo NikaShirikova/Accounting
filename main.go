@@ -28,5 +28,22 @@ func main() {
 	http.HandleFunc("/expenses", api.PrintExpenses)
 
 	fmt.Println("Date...")
+
+	//managerCert := autocert.Manager{
+	//	Cache:      autocert.DirCache("certs"),
+	//	Prompt:     autocert.AcceptTOS,
+	//	HostPolicy: autocert.HostWhitelist("DESKTOP-GM0R8G3"),
+	//}
+	//
+	//server := &http.Server{
+	//	Addr:      ":8181",
+	//	TLSConfig: &tls.Config{GetCertificate: managerCert.GetCertificate},
+	//}
+	//
+	//errTLS := server.ListenAndServeTLS("", "")
+	//if errTLS != nil {
+	//	fmt.Println(errTLS)
+	//	return
+	//}
 	http.ListenAndServe(":8181", nil)
 }
