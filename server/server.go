@@ -3,15 +3,22 @@ package server
 import (
 	"database/sql"
 	"fmt"
-	"time"
 )
+
+var Database *sql.DB
+
+type WorkWithDB interface {
+	ExecInsertTable() error
+	QuerySelectTable() error
+	QueryDeleteRow(id int) error
+}
 
 type Income struct {
 	Id    int
 	Sum   float64
 	Type  string
 	Place string
-	Date  time.Time
+	Date  string
 }
 
 type Expenses struct {
@@ -19,32 +26,56 @@ type Expenses struct {
 	Sum      float64
 	Category string
 	Place    string
-	Date     time.Time
+	Date     string
 }
 
-var Database *sql.DB
-
-func ExecInsertTable() {
-	timeNow := time.Now().Format("2006-01-02 15:04:05")
+func (inc *Income) ExecInsertTable() error {
 	_, errRes := Database.Exec(
-		"INSERT INTO Accounting.income (sum, type, place, date) VALUES (54545.777, 'Перевод по СБП', 'Роман Александрович Т.', $1)", timeNow)
+		"INSERT INTO Accounting.income (sum, type, place, date) VALUES ($1, $2, $3, $4)",
+		inc.Sum, inc.Type, inc.Place, inc.Date)
 	if errRes != nil {
-		fmt.Println(errRes)
-		return
+		return errRes
 	}
-	_, errExpenses := Database.Exec(
-		"INSERT INTO Accounting.Expenses (sum, category, place, date) VALUES (54545.777, 'Перевод по СБП', 'Роман Александрович Т.', $1)", timeNow)
-	if errExpenses != nil {
-		fmt.Println(errExpenses)
-		return
-	}
+	fmt.Println("Строка успешно вставлена!")
+	return nil
 }
 
-func QueryInsertTable() {
+func (exp *Expenses) ExecInsertTable() error {
+	_, errExpenses := Database.Exec(
+		"INSERT INTO Accounting.expenses (sum, category, place, date) VALUES ($1, $2, $3, $4)",
+		exp.Sum, exp.Category, exp.Place, exp.Date)
+	if errExpenses != nil {
+		return errExpenses
+	}
+	fmt.Println("Строка успешно вставлена!")
+	return nil
+}
+
+func (inc *Income) QuerySelectTable() error {
 	rows, err := Database.Query("SELECT sum, type FROM Accounting.income")
 	if err != nil {
+		return err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var sum float64
+		var types string
+		errScan := rows.Scan(&sum, &types)
+		if errScan != nil {
+			return errScan
+		}
+		fmt.Println(sum, types)
+	}
+	fmt.Println("Строки успешно выведены!")
+	return nil
+}
+
+func (exp *Expenses) QuerySelectTable() error {
+	rows, err := Database.Query("SELECT sum, category FROM Accounting.expenses")
+	if err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 
 	defer rows.Close()
@@ -54,8 +85,28 @@ func QueryInsertTable() {
 		errScan := rows.Scan(&sum, &types)
 		if errScan != nil {
 			fmt.Println(errScan)
-			return
+			return errScan
 		}
 		fmt.Println(sum, types)
 	}
+	fmt.Println("Строки успешно выведены!")
+	return nil
+}
+
+func (inc *Income) QueryDeleteRow(id int) error {
+	_, err := Database.Query("Delete from accounting.income where id=$1", id)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Строка успешно удалена!")
+	return nil
+}
+
+func (exp *Expenses) QueryDeleteRow(id int) error {
+	_, err := Database.Query("Delete from accounting.expenses where id=$1", id)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Строка успешно удалена!")
+	return nil
 }
