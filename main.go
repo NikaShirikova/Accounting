@@ -6,10 +6,45 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"math/rand"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 )
+
+const CountArray = 5
+
+func main() {
+	conn := "user=root password=root dbname=postgres sslmode=disable"
+	db, err := sql.Open("postgres", conn)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	server.Database = db
+	defer db.Close()
+
+	var incomes [CountArray]server.Income
+	//var expenses [CountArray]server.Expenses
+
+	fmt.Println("Доходы")
+	AddRowsArrayIncome(incomes)
+	//AddRowsArray(expenses, CountArray)
+	//timeNow := time.Now().Format("2006-01-02 15:04:05")
+	//income := &server.Income{0, 434, "ЗП", "Криптософт", timeNow}
+	//editDB(income)
+	//
+	//expenses := &server.Expenses{0, 434, "Продукты", "Магнит", timeNow}
+	//editDB(expenses)
+
+	http.HandleFunc("/income", api.PrintIncomes)
+	http.HandleFunc("/expenses", api.PrintExpenses)
+
+	http.ListenAndServe(":80", nil)
+}
 
 func editDB(work server.WorkWithDB) {
 	switch work.(type) {
@@ -42,28 +77,17 @@ func editDB(work server.WorkWithDB) {
 	fmt.Println("Работа с БД успешно проведена")
 }
 
-func main() {
-	conn := "user=root password=root dbname=postgres sslmode=disable"
-	db, err := sql.Open("postgres", conn)
-
-	if err != nil {
-		fmt.Println(err)
-		return
+func AddRowsArrayIncome(inc [CountArray]server.Income) {
+	for i := 0; i < CountArray; i++ {
+		randSum := 0 + rand.Intn(100000)
+		inc[i] = server.Income{
+			i, float64(randSum), "Перевод", "Ширикова Г.В.", time.Now().Format("2006-01-02 15:04:05")}
+		go PrintIncome(inc[i])
 	}
+}
 
-	server.Database = db
-	defer db.Close()
-
-	timeNow := time.Now().Format("2006-01-02 15:04:05")
-	income := &server.Income{0, 434, "ЗП", "Криптософт", timeNow}
-	editDB(income)
-
-	expenses := &server.Expenses{0, 434, "Продукты", "Магнит", timeNow}
-	editDB(expenses)
-
-	http.HandleFunc("/income", api.PrintIncomes)
-	http.HandleFunc("/expenses", api.PrintExpenses)
-
-	fmt.Println("Date...")
-	http.ListenAndServe(":80", nil)
+func PrintIncome(inc server.Income) {
+	fmt.Printf("ID: %d Сумма: %g, Тип: %s, От кого: %s, Дата и время: %s \n",
+		inc.Id, inc.Sum, inc.Type, inc.Place, inc.Date)
+	runtime.Gosched()
 }
