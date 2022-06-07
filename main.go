@@ -27,11 +27,11 @@ func main() {
 	server.Database = db
 	defer db.Close()
 
-	var incomes [CountArray]server.Income
+	//var incomes [CountArray]server.Income
 	//var expenses [CountArray]server.Expenses
 
-	fmt.Println("Доходы")
-	AddRowsArrayIncome(incomes)
+	//fmt.Println("Доходы")
+	//AddRowsArrayIncome(incomes)
 	//AddRowsArray(expenses, CountArray)
 	//timeNow := time.Now().Format("2006-01-02 15:04:05")
 	//income := &server.Income{0, 434, "ЗП", "Криптософт", timeNow}
@@ -40,10 +40,27 @@ func main() {
 	//expenses := &server.Expenses{0, 434, "Продукты", "Магнит", timeNow}
 	//editDB(expenses)
 
-	http.HandleFunc("/income", api.PrintIncomes)
-	http.HandleFunc("/expenses", api.PrintExpenses)
+	go RunServer(":8081")
+	RunServer(":8080")
+}
 
-	http.ListenAndServe(":80", nil)
+func RunServer(addr string) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/income", api.PrintIncomes)
+	mux.HandleFunc("/expenses", api.PrintExpenses)
+	mux.HandleFunc(
+		"/",
+		func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintln(w, "Addr: ", addr, "URL: ", r.URL.String())
+		})
+
+	server := http.Server{
+		Addr:    addr,
+		Handler: mux,
+	}
+
+	fmt.Println("Start server at", addr)
+	server.ListenAndServe()
 }
 
 func editDB(work server.WorkWithDB) {
