@@ -48,6 +48,8 @@ func RunServer(addr string) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/income", api.PrintIncomes)
 	mux.HandleFunc("/expenses", api.PrintExpenses)
+	mux.HandleFunc("/addincome/", api.AddIncomes)
+	mux.HandleFunc("/addexpenses/", api.AddExpenses)
 	mux.HandleFunc(
 		"/",
 		func(w http.ResponseWriter, r *http.Request) {
