@@ -108,7 +108,7 @@ func AddIncome(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Сумма: %s Тип: %s Место: %s Дата: %s", sum, types, place, date)
 
 	if sum == "" || types == "" || place == "" {
-		fmt.Fprintln(w, "Не хватает параметров для добавления строки в таблицу income")
+		fmt.Fprintln(w, "Не хватает параметров для добавления строки в таблицу доходов")
 		return
 	}
 	if date == "" {
