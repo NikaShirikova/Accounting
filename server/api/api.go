@@ -98,3 +98,24 @@ func AddExpenses(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("OK ADD")
 	fmt.Fprintln(w, "Строка успешно вставлена")
 }
+
+func AddIncome(w http.ResponseWriter, r *http.Request) {
+	sum := r.FormValue("sum")
+	types := r.FormValue("type")
+	place := r.FormValue("place")
+	date := r.FormValue("date")
+
+	fmt.Fprintf(w, "Сумма: %s Тип: %s Место: %s Дата: %s", sum, types, place, date)
+
+	if sum == "" || types == "" || place == "" {
+		fmt.Fprintln(w, "Не хватает параметров для добавления строки в таблицу income")
+		return
+	}
+	if date == "" {
+		date = time.Now().Format("2006-01-02 15:04:05")
+	}
+	floatSum, _ := strconv.Atoi(sum)
+	inc := server.Income{0, float64(floatSum), types, place, date}
+	inc.ExecInsertTable()
+	fmt.Fprintln(w, "\nСтрока успешно вставлена")
+}
