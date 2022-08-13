@@ -51,10 +51,11 @@ func RunServer(addr string) {
 	mux.HandleFunc("/addincomes/", api.AddIncomes)
 	mux.HandleFunc("/addexpenses/", api.AddExpenses)
 	mux.HandleFunc("/addincome", api.AddIncome)
+	mux.HandleFunc("/addexpens", api.AddExpens)
 	mux.HandleFunc(
 		"/",
 		func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, "templates/IncomeForms.html")
+			http.ServeFile(w, r, "templates/StartPage.html")
 		})
 
 	server := http.Server{

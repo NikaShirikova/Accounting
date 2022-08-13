@@ -119,3 +119,24 @@ func AddIncome(w http.ResponseWriter, r *http.Request) {
 	inc.ExecInsertTable()
 	fmt.Fprintln(w, "\nСтрока успешно вставлена")
 }
+
+func AddExpens(w http.ResponseWriter, r *http.Request) {
+	sum := r.FormValue("sum")
+	category := r.FormValue("category")
+	place := r.FormValue("place")
+	date := r.FormValue("date")
+
+	fmt.Fprintf(w, "Сумма: %s Тип: %s Место: %s Дата: %s", sum, category, place, date)
+
+	if sum == "" || category == "" || place == "" {
+		fmt.Fprintln(w, "Не хватает параметров для добавления строки в таблицу доходов")
+		return
+	}
+	if date == "" {
+		date = time.Now().Format("2006-01-02 15:04:05")
+	}
+	floatSum, _ := strconv.Atoi(sum)
+	inc := server.Expenses{0, float64(floatSum), category, place, date}
+	inc.ExecInsertTable()
+	fmt.Fprintln(w, "\nСтрока успешно вставлена")
+}
